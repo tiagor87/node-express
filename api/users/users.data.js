@@ -11,13 +11,19 @@ module.exports = (connectionString) => {
                 SELECT
                     *
                 FROM
-                    users
+                    general.users
                 WHERE
-                    deleteDate IS NULL
+                    delete_date IS NULL
                 `))
-                .finally(() => client.end())
                 .retry(2)
-                .map(res => res.rows);
+                .map(res => res.rows)
+                .catch(error => {
+                    return Observable.throw({
+                        connectionString,
+                        error
+                    });
+                })
+                .finally(() => client.end());
         }
     }
 }
